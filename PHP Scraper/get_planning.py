@@ -39,8 +39,8 @@ SEPARATOR = '\n=======================================\n'
 
 ROOT_PATH = r'C:\Users\dahunt\Dropbox\GovHack (1)'
 SUBURB_FILE = ROOT_PATH + r'\Raw Data\walocalitypolygon\WA Shape Modified.csv'
-INPUT_PATH = r'C:\Users\dahunt\Downloads\local-structure-plans.json'
-OUT_PATH = ROOT_PATH + r'\PHP Scraper\HOUSE_DATA_BY_POLYGON.csv'
+INPUT_PATH = r'C:\Users\dahunt\Dropbox\GovHack (1)\Raw Data\local-structures-plans.json'
+OUT_PATH = ROOT_PATH + r'\PHP Scraper\PLANNING_DATA_BY_POLYGON.csv'
 
 HAS_PROPERTIES = True
 
@@ -102,12 +102,14 @@ def run(inputPath,outputPath):
             else:
                 polygonList = jData[i]['geometry']['coordinates']
                 for polygon in polygonList:
-                    temp = row.append(getPolygon(polygon))
+                    temp = row
+                    temp.extend(getPolygon(polygon))
                     outData.append(temp)
 
 
+
     with open(outputPath,'w',newline='') as fOut:
-        writer = csv.writer(fOut,delimiter='|',quoting=csv.QUOTE_NONE)
+        writer = csv.writer(fOut,delimiter='|',quoting=csv.QUOTE_MINIMAL,escapechar='\"')
         writer.writerows(outData)
 
     print('Finished extracting data.')

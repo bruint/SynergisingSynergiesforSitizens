@@ -1,0 +1,11 @@
+*.dbf
+*.mshp
+*.shp
+*.shx
+*.prj
+*.qpj
+*.zip
+*.csv
+*.json
+*.py
+*.xls

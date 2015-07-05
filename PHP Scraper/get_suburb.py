@@ -125,8 +125,9 @@ def run(inputPath,outputPath):
             polygonList = jData[i]['geometry']['coordinates']
             for polygon in polygonList:
                 s = shape(jData[i]['geometry'])
-                outData.append([getPolygon(polygon,suburbs,s)])
-                outData.append(getPolygon(polygon,suburbs,s))
+                x, y = s.exterior.coords.xy
+                p = Point(x[0],y[0])
+                outData.append(getPolygon(polygon,suburbs,p))
 
 
     with open(outputPath,'w',newline='') as fOut:
