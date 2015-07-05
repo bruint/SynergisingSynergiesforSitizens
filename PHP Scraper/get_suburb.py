@@ -8,7 +8,7 @@ from urllib import request as r
 import lxml
 from os.path import exists
 import json
-from shapely.geometry import shape, polygon
+from shapely.geometry import shape, polygon, Point
 from shapely.wkt import loads
 
 #==============
@@ -125,6 +125,9 @@ def run(inputPath,outputPath):
             polygonList = jData[i]['geometry']['coordinates']
             for polygon in polygonList:
                 s = shape(jData[i]['geometry'])
+                # print(str(type(s)))
+                if str(type(s)) == '<class \'shapely.geometry.multipolygon.MultiPolygon\'>':
+                    s = s.geoms[0]
                 x, y = s.exterior.coords.xy
                 p = Point(x[0],y[0])
                 outData.append(getPolygon(polygon,suburbs,p))

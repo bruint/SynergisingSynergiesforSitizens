@@ -10,6 +10,7 @@ from os.path import exists
 import json
 from shapely.geometry import shape, polygon
 from shapely.wkt import loads
+import itertools
 
 #==============
 #  HEADER
@@ -50,8 +51,8 @@ LONG = 1
 # file to redirect log data to
 LOG_PATH = ROOT_PATH + r'\log.txt'
 
-PROPERTY_LIST = ['pub_title','adopt_lga','pub_dwell_','est_dwell_','pub_lot_yi','est_lot_yi','shape_area']
-HEADER_LIST = PROPERTY_LIST.append('polygon')
+PROPERTY_LIST = ['pub_title','pub_dwell_','est_dwell_','pub_lot_yi','est_lot_yi','shape_area']
+HEADER_LIST = ['int_id','pub_title','pub_dwell_','est_dwell_','pub_lot_yi','est_lot_yi','shape_area','polygon']
 
 #=================
 #  MAIN FUNCTIONS
@@ -74,14 +75,34 @@ def getProperties(properties):
 
 def getPolygon(polygon):
     # get polygon string
-    data = []
+    # data = []
     polyStr = 'POLYGON(('
     for coord in polygon:
         polyStr = polyStr + str(coord[LAT]) + ' ' + str(coord[LONG]) + ','
     polyStr = polyStr[:-1] + '))'
-    data.append(polyStr)
 
-    return data
+    # print(polyStr)
+
+    if '[' in polyStr:
+        polyStr = polyStr.replace('[','')
+        polyStr = polyStr.replace(',','')
+        polyStr = polyStr.replace('\'','')
+        polyStr = polyStr.replace(']',',')
+        polyStr = polyStr[:-3] + '))'
+
+    # data.append(polyStr)
+
+    return polyStr
+
+def getPolygonList(shapes):
+    shapeList = []
+    if str(type(shapes)) == '<class \'shapely.geometry.multipolygon.MultiPolygon\'>':
+        for s in shapes.geom:
+            shapeList.append(s)
+    else:
+        shapeList = [shapes]
+    return shapeList
+
 
 def run(inputPath,outputPath):
     print('Starting extract process with output at: \n')
@@ -94,6 +115,7 @@ def run(inputPath,outputPath):
         jData = json.load(fIn)
 
         row = []
+        int_id = 0
         # outer dict contains either 'properties' or 'polygon'
         for i in range(len(jData)):
             if i % 2 == 0 and HAS_PROPERTIES:
@@ -102,9 +124,10 @@ def run(inputPath,outputPath):
             else:
                 polygonList = jData[i]['geometry']['coordinates']
                 for polygon in polygonList:
-                    temp = row
-                    temp.extend(getPolygon(polygon))
+                    temp = list(itertools.chain([int_id],row[:]))
+                    temp.append(getPolygon(polygon))
                     outData.append(temp)
+                    int_id = int_id + 1
 
 
 
